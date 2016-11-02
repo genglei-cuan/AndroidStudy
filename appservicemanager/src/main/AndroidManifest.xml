@@ -1,9 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.cuan.appservicemanager">
+    package="com.cuan.appServiceManager">
 
     <application android:allowBackup="true" android:label="@string/app_name"
         android:supportsRtl="true">
 
+        <provider
+            android:authorities="com.cuan.appServiceManager.ServiceProvider"
+            android:name="com.cuan.appServiceManager.ServiceProvider"
+            android:process=":SM"/>
     </application>
 
 </manifest>
