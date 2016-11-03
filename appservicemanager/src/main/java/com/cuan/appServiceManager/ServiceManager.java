@@ -12,6 +12,7 @@ import android.os.RemoteException;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 
+import com.cuan.tool.log.MLog;
 import com.cuan.tool.precondition.Preconditions;
 
 import java.lang.annotation.Retention;
@@ -21,7 +22,8 @@ import java.util.HashMap;
 /**
  * 仿照 Android 的 ServiceManager的实现。
  *
- * 实际上是让一个 ContentProvider 充当 ServiceManager 的角色
+ * 保证每个进有且仅有一个该对象的实例；
+ *
  */
 public class ServiceManager {
 
@@ -31,7 +33,7 @@ public class ServiceManager {
 
     private static IServiceManager sServiceManager = null;
     private static ServiceManager instance = null;
-
+    private static boolean initSuccess  = false;
     public static final int RET_ERR                 = 0;
     public static final int RET_OK                  = 1;
     public static final int LOCAL_ALLREADY_ADDED    = 2;
@@ -39,17 +41,22 @@ public class ServiceManager {
     public static final int PARAM_IS_NULL = 4;
     public static final int SERVICE_IS_DEAD         = 5;
 
+
     public static boolean isInit(){
-        return sServiceManager == null ? false : true;
+        return initSuccess;
     }
     public static ServiceManager initAndGetInstance(Context context){
         if(sServiceManager == null || (sServiceManager != null && !sServiceManager.asBinder().isBinderAlive())){
             Preconditions.checkNotNull(context,"context is null.");
-            Uri uri = Uri.parse("content://"+ ServiceProvider.AUTHORITIES);
+            Uri uri = Uri.parse("content://"+ ServiceManagerProvider.AUTHORITIES);
             Bundle bundle = new Bundle();
-            bundle.putInt(ServiceProvider.CODE,ServiceProvider.GET_SERVICEMANAGER);
-            Bundle res = context.getContentResolver().call(uri,ServiceProvider.GetServiceManager,null,bundle);
-            sServiceManager = IServiceManager.Stub.asInterface(res.getBinder(ServiceProvider.BINDER));
+            bundle.putInt(ServiceManagerProvider.CODE, ServiceManagerProvider.GET_SERVICEMANAGER);
+            Bundle res = context.getContentResolver().call(uri, ServiceManagerProvider.GetServiceManager,null,bundle);
+            IBinder binder = res.getBinder(ServiceManagerProvider.BINDER);
+            Preconditions.checkNotNull(binder," binder is null");
+            sServiceManager = IServiceManager.Stub.asInterface(binder);
+            if(sServiceManager != null)
+                initSuccess = true;
             instance = new ServiceManager();
         }
         return instance;
@@ -68,7 +75,19 @@ public class ServiceManager {
      * @return
      */
     public  IBinder getService(String name){
-      return null;
+        IBinder binder = sCache.get(name);
+        if(binder != null && binder.isBinderAlive())
+            return binder;
+        if(initSuccess){
+            try {
+                binder = sServiceManager.getService(name);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }else{
+            MLog.e(TAG,">>>>> ServiceManager is not init. <<<<<");
+        }
+      return binder;
     }
 
     /**

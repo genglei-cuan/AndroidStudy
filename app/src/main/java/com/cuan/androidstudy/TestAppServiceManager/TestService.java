@@ -12,13 +12,15 @@ import com.cuan.tool.log.MLog;
 public class TestService extends ITestService.Stub {
     @Override
     public String getName() throws RemoteException {
-        MLog.i("ServiceProvider","server pid: "+ Process.myPid());
+        MLog.i("ServiceManagerProvider","server pid: "+ Process.myPid());
+        MLog.i("ServiceManagerProvider","Thread id : "+ Process.myTid());
         return "shajia";
     }
 
     @Override
     public int getAdd(int a, int b) throws RemoteException {
-        MLog.i("ServiceProvider","server pid: "+ Process.myPid());
+        MLog.i("ServiceManagerProvider","server pid: "+ Process.myPid());
+        MLog.i("ServiceManagerProvider","thread id : "+ Process.myTid());
         return a+b;
     }
 }

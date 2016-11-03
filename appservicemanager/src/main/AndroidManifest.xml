@@ -5,8 +5,8 @@
         android:supportsRtl="true">
 
         <provider
-            android:authorities="com.cuan.appServiceManager.ServiceProvider"
-            android:name="com.cuan.appServiceManager.ServiceProvider"
+            android:authorities="com.cuan.appServiceManager.ServiceManagerProvider"
+            android:name="com.cuan.appServiceManager.ServiceManagerProvider"
             android:process=":SM"/>
     </application>
 

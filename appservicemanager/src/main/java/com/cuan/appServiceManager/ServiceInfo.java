@@ -16,6 +16,7 @@ public class ServiceInfo {
     private String name;
     private int pid;
     private IBinder ibinder;
+    private boolean needRestart;
 
     @STATUS
     private int status;

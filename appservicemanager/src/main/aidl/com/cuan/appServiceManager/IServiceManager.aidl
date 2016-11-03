@@ -11,7 +11,7 @@ interface IServiceManager {
 
     int addService(String name, IBinder service);
 
-    int resoveService(String name);
+    int removeService(String name);
 
     String[] listServices();
 

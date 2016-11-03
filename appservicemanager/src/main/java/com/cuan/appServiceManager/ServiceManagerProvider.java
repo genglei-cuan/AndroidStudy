@@ -4,39 +4,47 @@ package com.cuan.appServiceManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
+import com.cuan.tool.log.MLog;
 import com.cuan.tool.precondition.Preconditions;
 
-import java.util.HashMap;
 
 /**
  * Created by genglei-cuan on 16-11-1.
  */
 
-public class ServiceProvider extends BaseProvider {
+/**
+ * 充当 App 中进程获取 ServiceManager 的媒介。
+ *
+ * 同一个 App 中的进程都可以通过它获取 ServiceManager 的 IBinder 对象。
+ */
+public class ServiceManagerProvider extends BaseProvider {
 
-    private static String TAG = "ServiceProvider";
+    private static String TAG = "ServiceManagerProvider";
 
 
-    public static final String AUTHORITIES = "com.cuan.appservicemanager.ServiceProvider";
+    public static final String AUTHORITIES = "com.cuan.appServiceManager.ServiceManagerProvider";
 
     public static final String CODE = "code";
     public static final String BINDER = "Binder";
 
     public static final int GET_SERVICEMANAGER  = 100;
-    public static final int ADD_SERVICE         = 101;
-    public static final int GET_SERVICE         = 102;
-    public static final int REMOVE_SERVICE      = 103;
+
 
     public static final String GetServiceManager = "GetServiceManager";
-    public static final String AddService = "AddService";
-    public static final String GetService = "GetService";
-    public static final String RemoveService = "RemoveService";
+
 
 
     private ServiceManagerNative sServiceManager;
+
+    /**
+     * Provider 创建完成之后， ServiceManager 就创建完毕，可以等待客户端请求了。
+     * 这里可以添加运行在本进程中的 service ,类似 SystemServer进程。
+     * @return
+     */
     @Override
     public boolean onCreate() {
-        sServiceManager = new ServiceManagerNative();
+        sServiceManager = ServiceManagerNative.getInstance();
+        AppServer.main();
         return false;
     }
 
@@ -50,14 +58,12 @@ public class ServiceProvider extends BaseProvider {
     @Nullable
     @Override
     public Bundle call(String method, String arg, Bundle extras) {
-        Preconditions.checkNotNull(extras,"Bundle in ServiceProvider.call() is null.");
+        Preconditions.checkNotNull(extras,"Bundle in ServiceManagerProvider.call() is null.");
         int code = extras.getInt("code");
         Preconditions.check(method.equals(CodeToString(code)),"the method's code you call is err.");
         switch (code){
             case GET_SERVICEMANAGER:
                 return getServiceManager();
-            case ADD_SERVICE:
-                return addService(method,extras);
 
         }
         return null;
@@ -65,15 +71,22 @@ public class ServiceProvider extends BaseProvider {
 
     private Bundle getServiceManager(){
         Bundle bundle = new Bundle();
-        bundle.putBinder("value",sServiceManager);
+        bundle.putBinder(BINDER,sServiceManager);
+        if(sServiceManager == null)
+            MLog.e(TAG,">>>>> Service Manager is not create. <<<<<");
         return bundle;
     }
-    private Bundle addService(String methodName,Bundle extras){
+
+    private Bundle startAppServer(){
         Bundle bundle = new Bundle();
         return bundle;
     }
 
     private String CodeToString(int code){
+        switch (code){
+            case GET_SERVICEMANAGER:
+                return GetServiceManager;
+        }
         return null;
     }
 }
