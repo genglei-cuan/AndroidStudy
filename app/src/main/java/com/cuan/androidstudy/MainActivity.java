@@ -19,9 +19,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         MLog.i("ServiceManagerProvider","Main activity pid: "+ Process.myPid());
         /**
+         * 初始化 ServiceManager
+         */
+        ServiceManager.init(this);
+        /**
          * 注册service
          */
-        ServiceManager.initAndGetInstance(this).addService("TestService",new TestService());
+        ServiceManager.addService("TestService",new TestService());
 
         startActivity(new Intent(this, Main2Activity.class));
         startService(new Intent(this,MyService.class));

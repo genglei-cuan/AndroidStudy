@@ -1,6 +1,7 @@
 package com.cuan.appServiceManager;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
@@ -45,6 +46,8 @@ public class ServiceManagerProvider extends BaseProvider {
     public boolean onCreate() {
         sServiceManager = ServiceManagerNative.getInstance();
         AppServer.main();
+        // 提高优先级
+        getContext().startService(new Intent(getContext(),EmptyService.class));
         return false;
     }
 

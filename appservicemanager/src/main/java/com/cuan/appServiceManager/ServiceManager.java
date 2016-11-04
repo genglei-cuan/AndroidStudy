@@ -32,7 +32,6 @@ public class ServiceManager {
     public static final String SCHEME_CONTENT = "content";
 
     private static IServiceManager sServiceManager = null;
-    private static ServiceManager instance = null;
     private static boolean initSuccess  = false;
     public static final int RET_ERR                 = 0;
     public static final int RET_OK                  = 1;
@@ -45,8 +44,8 @@ public class ServiceManager {
     public static boolean isInit(){
         return initSuccess;
     }
-    public static ServiceManager initAndGetInstance(Context context){
-        if(sServiceManager == null || (sServiceManager != null && !sServiceManager.asBinder().isBinderAlive())){
+    public static void init(Context context){
+        if(sServiceManager == null || (sServiceManager != null && !sServiceManager.asBinder().pingBinder())){
             Preconditions.checkNotNull(context,"context is null.");
             Uri uri = Uri.parse("content://"+ ServiceManagerProvider.AUTHORITIES);
             Bundle bundle = new Bundle();
@@ -57,12 +56,12 @@ public class ServiceManager {
             sServiceManager = IServiceManager.Stub.asInterface(binder);
             if(sServiceManager != null)
                 initSuccess = true;
-            instance = new ServiceManager();
         }
-        return instance;
     }
 
-    private ServiceManager(){}
+    private ServiceManager(){
+        throw new UnsupportedOperationException("  Prohibit to create  ServiceManager object.");
+    }
 
     /**
      * 缓存查询结果，提高查询效率
@@ -74,7 +73,8 @@ public class ServiceManager {
      * @param name
      * @return
      */
-    public  IBinder getService(String name){
+    public static  IBinder getService(String name){
+        Preconditions.check(initSuccess,"ServiceManager must be initialized before using,please exec ServiceManager.init(Context).");
         IBinder binder = sCache.get(name);
         if(binder != null && binder.isBinderAlive())
             return binder;
@@ -95,7 +95,8 @@ public class ServiceManager {
      * @param name
      * @param binder
      */
-    public  int addService(@NonNull String name,@NonNull IBinder binder){
+    public  static int addService(@NonNull String name,@NonNull IBinder binder){
+        Preconditions.check(initSuccess,"ServiceManager must be initialized before using,please exec ServiceManager.init(Context).");
         if(sCache.get(name)!=null && sCache.get(name).isBinderAlive())
             return LOCAL_ALLREADY_ADDED;
         sCache.put(name,binder);
@@ -113,7 +114,7 @@ public class ServiceManager {
      * 实际情况中，应该很少使用
      * @param name
      */
-    public  int removeService(String name){
+    public static int removeService(String name){
         return 0;
     }
 
@@ -121,7 +122,7 @@ public class ServiceManager {
      * 返回所有正在运行的 service name
      * @return
      */
-    public  String[] listServices(){
+    public static String[] listServices(){
         return null;
     }
 

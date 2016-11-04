@@ -1,5 +1,7 @@
 package com.cuan.appServiceManager;
 
+import android.content.Context;
+
 import com.cuan.tool.log.MLog;
 
 /**
@@ -23,7 +25,7 @@ public class AppServer {
         startCoreServices();
         startOtherServices();
         long time = System.currentTimeMillis();
-        MLog.i(TAG,">>>>>> the AppServer started time-consuming(ms): " + (time-currentTime)+" <<<<<<");
+        MLog.i(TAG,">>>>>> the AppServer started time-consuming: " + (time-currentTime)+"ms <<<<<<");
     }
     /**
      * 启动引导 Service
@@ -46,5 +48,9 @@ public class AppServer {
      */
     protected void startOtherServices(){
 
+    }
+
+    public static String getCurrentProcessName(Context context){
+        return null;
     }
 }
